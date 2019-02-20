@@ -80,6 +80,6 @@ typings/
 .dynamodb/
 
 .DS_Store
-server/config/config.json
+
 dist/
 package-lock.json
