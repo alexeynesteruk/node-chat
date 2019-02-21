@@ -1,16 +1,23 @@
 var app = new Vue({
-    el: '#app',
+    el: '.chat',
     data: {
         message: '',
+        sendingLocation: false,
         msgs: []
     },
     methods: {
         sendMessage: function (e) {
-            sendMessage('User', this.message);
+            sendMessage('User', this.message, function () {
+                e.target.reset();
+            });
             e.preventDefault();
-            e.target.reset();
         },
-        sendLocation
+        sendLocation: function () {
+            this.sendingLocation = true;
+            sendLocation((function () {
+                this.sendingLocation = false;
+            }).bind(this));
+        }
     }
 })
 
@@ -24,25 +31,26 @@ socket.on('disconnect', function () {
 });
 
 socket.on('newMessage', function (msg) {
-    app.msgs.unshift(msg);
+    app.msgs.push(msg);
 });
 
 socket.on('newLocationMessage', function (msg) {
     const loc = msg.location;
     const locLink = `http://www.google.com/maps?q=${loc.latitude},${loc.longitude}`
-    app.msgs.unshift({ locLink, from: msg.from });
+    app.msgs.push({ locLink, from: msg.from });
 });
 
-function sendMessage(from, text) {
+function sendMessage(from, text, callback) {
     socket.emit('createMessage', {
         from: from,
         text: text
     }, function (message) {
         console.log(message);
+        callback();
     });
 }
 
-function sendLocation() {
+function sendLocation(callback) {
     navigator.geolocation.getCurrentPosition(function (position) {
         socket.emit('sendLocationMessage', {
             from: 'USer1',
@@ -51,9 +59,11 @@ function sendLocation() {
                 longitude: position.coords.longitude
             }
         }, function (message) {
+            callback();
             console.log(message);
         });
     }, function () {
         alert('Unable to fetch you location.');
+        callback();
     });
 }

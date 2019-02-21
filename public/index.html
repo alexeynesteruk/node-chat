@@ -4,25 +4,34 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body>
+    <div class="chat">
+        <div class="chat__sidebar">
+            <h3>People</h3>
+            <div></div>
+        </div>
 
-    <div id="app">
-            <p>Welcome to the chat app</p>
-        <form @submit="sendMessage">
-                <input v-model="message" name="message" type="text" placeholder="Mesage">
-                <button type="submit">Send</button>
-        </form>
-        <button v-on:click="sendLocation" type="button">Send Location</button>
+        <div class="chat__main">
+            <ol class="chat__messages">
+                <li v-for="msg in msgs">
+                    <div v-if="!msg.locLink"><b>{{msg.from}}</b>: {{ msg.text }}</div>
+                    <a v-if="msg.locLink" v-bind:href="msg.locLink" target="_blank">{{msg.from}}'s location</a>
+                </li>
+            </ol>
 
-                <ol>
-                  <li v-for="msg in msgs">
-                       <div v-if="!msg.locLink"><b>{{msg.from}}</b>: {{ msg.text }}</div>
-                       <a v-if="msg.locLink" v-bind:href="msg.locLink" target="_blank">{{msg.from}}'s location</a>
-                  </li>
-                </ol>
-
+            <div class="chat__footer">
+                <form @submit="sendMessage">
+                    <input v-model="message" name="message" type="text" placeholder="Mesage" autofocus
+                        autocomplete="off">
+                    <button type="submit">Send</button>
+                </form>
+                <button v-on:click="sendLocation" type="button"
+                    :disabled="sendingLocation">Send{{ sendingLocation ? 'ing...' : ''}} Location</button>
+            </div>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
