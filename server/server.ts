@@ -4,6 +4,7 @@ import http from "http";
 import socketIO from "socket.io";
 import { Message } from "./utils/messages/textMessage/message";
 import { LocationMessage } from "./utils/messages/locationMessage/locationMessage";
+import {Validators} from"./utils/validators/validators";
 
 const app = express();
 const server = http.createServer(app);
@@ -21,12 +22,20 @@ io.on('connection', (socket) => {
 
     function brodcastLocation(locationMessage: LocationMessage) {
         socket.broadcast.emit('newLocationMessage', locationMessage)
-    }    
+    }
 
     function newUserJoining() {
-        socket.emit('newMessage', new Message('Admin','Welcome to the chat app'));
-        socket.broadcast.emit('newMessage',new Message('Admin','New user joined'));
+        socket.emit('newMessage', new Message('Admin', 'Welcome to the chat app'));
+        socket.broadcast.emit('newMessage', new Message('Admin', 'New user joined'));
     }
+
+    socket.on('join', (params, callback) => {
+        if(!Validators.isNonEmptyString(params.name) || !Validators.isNonEmptyString(params.room))
+        {
+            callback('Name and room name are require');
+        }
+        callback();
+    })
 
     socket.on('createMessage', (msg, callback) => {
         console.log('New message recieved ', msg);
@@ -35,8 +44,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendLocationMessage', (msg, callback) => {
-        let location = new LocationMessage(msg.from,msg.location);
-        console.log('New location recieved ', );
+        let location = new LocationMessage(msg.from, msg.location);
+        console.log('New location recieved ');
         brodcastLocation(location);
         callback('You location was sent');
     });

@@ -2,8 +2,8 @@ import expect from 'expect';
 
 import { LocationMessage } from './locationMessage';
 
-describe('generateMessage', () => {
-    it('should generate correct message object', () => {
+describe('generateLocationMessage', () => {
+    it('should generate correct location message object', () => {
         const from = 'Admin';
         const location = {
             latitude: -1,

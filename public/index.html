@@ -4,40 +4,30 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Join | ChatApp</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 
-<body>
-    <div class="chat">
-        <div class="chat__sidebar">
-            <h3>People</h3>
-            <div></div>
-        </div>
-
-        <div class="chat__main">
-            <ol class="chat__messages">
-                <li v-for="msg in msgs" class="message">
-                    <message :msg="msg"></message>
-                </li>
-            </ol>
-
-            <div class="chat__footer">
-                <form @submit="sendMessage">
-                    <input v-model="message" name="message" type="text" placeholder="Mesage" autofocus
-                        autocomplete="off">
-                    <button type="submit">Send</button>
-                </form>
-                <button v-on:click="sendLocation" type="button"
-                    :disabled="sendingLocation">Send{{ sendingLocation ? 'ing...' : ''}} Location</button>
+<body class="centered-form">
+    <div class="centered-form__form">
+        <form action="/chat.html">
+            <div class="form-field">
+                <h3>Join a Chat</h3>
             </div>
-        </div>
+            <div class="form-field">
+                <label>Display name:</label>
+                <input type="text" name="name" autofocus />
+            </div>
+            <div class="form-field">
+                <label>Room name:</label>
+                <input type="text" name="room" />
+            </div>
+            <div class="form-field">
+                <button type="submit">Join</button>
+            </div>
+        </form>
     </div>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/lib/vue.js"></script>
-    <script  src="/js/components/message.js"></script>
-    <script src="/js/lib/moment-with-locales.js"></script>
-    <script src="/js/index.js"></script>
 </body>
 
 </html>

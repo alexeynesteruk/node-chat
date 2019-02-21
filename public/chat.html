@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Chat | ChatApp</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="chat">
+        <div class="chat__sidebar">
+            <h3>People</h3>
+            <div></div>
+        </div>
+
+        <div class="chat__main">
+            <ol class="chat__messages">
+                <li v-for="msg in msgs" class="message">
+                    <message :msg="msg"></message>
+                </li>
+            </ol>
+
+            <div class="chat__footer">
+                <form @submit="sendMessage">
+                    <input v-model="message" name="message" type="text" placeholder="Mesage" autofocus
+                        autocomplete="off">
+                    <button type="submit">Send</button>
+                </form>
+                <button v-on:click="sendLocation" type="button"
+                    :disabled="sendingLocation">Send{{ sendingLocation ? 'ing...' : ''}} Location</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/lib/vue.js"></script>
+    <script  src="/js/components/message.js"></script>
+    <script src="/js/lib/moment-with-locales.js"></script>
+    <script src="/js/lib/deparam.js"></script>
+    <script src="/js/chat.js"></script>
+</body>
+
+</html>

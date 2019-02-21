@@ -25,7 +25,15 @@ var app = new Vue({
 
 const socket = io();
 socket.on('connect', function () {
-    console.log('Connected to server');
+    const params = deparam(window.location.search); 
+    socket.emit('join',params, function(error){
+        if(error){
+            alert(error);
+            window.location.href = '/';
+        }else{
+            console.log('No error');
+        }
+    });
 });
 
 socket.on('disconnect', function () {
@@ -35,7 +43,7 @@ socket.on('disconnect', function () {
 socket.on('newMessage', function (msg) {
     msg.formattedTime = moment(msg.createdAt).format('H:mm');
     app.msgs.push(msg);
-    scrollToBottom();
+    setTimeout(scrollToBottom, 0);
 });
 
 socket.on('newLocationMessage', function (msg) {
@@ -74,7 +82,7 @@ function scrollToBottom() {
     }
 
     if (scrollTop + clientHeight + newMessageHeight + lastMessageHeight >= scrollHeight) {
-        msgs.scrollTop = clientHeight;
+        msgs.scrollTop = scrollHeight;
     }
 }
 
