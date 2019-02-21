@@ -35,6 +35,7 @@ socket.on('disconnect', function () {
 socket.on('newMessage', function (msg) {
     msg.formattedTime = moment(msg.createdAt).format('H:mm');
     app.msgs.push(msg);
+    scrollToBottom();
 });
 
 socket.on('newLocationMessage', function (msg) {
@@ -42,6 +43,7 @@ socket.on('newLocationMessage', function (msg) {
     const locLink = `http://www.google.com/maps?q=${loc.latitude},${loc.longitude}`
     msg.formattedTime = moment(msg.createdAt).format('H:mm');
     app.msgs.push({ locLink, ...msg });
+    scrollToBottom();
 });
 
 function sendMessage(from, text, callback) {
@@ -52,6 +54,28 @@ function sendMessage(from, text, callback) {
         console.log(message);
         callback();
     });
+}
+
+function scrollToBottom() {
+    const msgs = document.getElementsByClassName('chat__messages')[0];
+    const newMessage = msgs.children[msgs.children.length - 1];
+
+    const clientHeight = msgs.clientHeight;
+    const scrollTop = msgs.scrollTop;
+    const scrollHeight = msgs.scrollHeight;
+
+    let newMessageHeight, lastMessageHeight, prevMessage;
+    if (newMessage) {
+        newMessageHeight = +window.getComputedStyle(newMessage, null).getPropertyValue("height").split("px")[0];
+        prevMessage = newMessage.previousElementSibling;
+    }
+    if (prevMessage) {
+        lastMessageHeight = +window.getComputedStyle(prevMessage, null).getPropertyValue("height").split("px")[0];
+    }
+
+    if (scrollTop + clientHeight + newMessageHeight + lastMessageHeight >= scrollHeight) {
+        msgs.scrollTop = clientHeight;
+    }
 }
 
 function sendLocation(callback) {
