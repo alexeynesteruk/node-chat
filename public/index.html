@@ -14,10 +14,12 @@
                 <input v-model="message" name="message" type="text" placeholder="Mesage">
                 <button type="submit">Send</button>
         </form>
+        <button v-on:click="sendLocation" type="button">Send Location</button>
 
                 <ol>
                   <li v-for="msg in msgs">
-                       <b>{{msg.from}}</b>: {{ msg.text }}
+                       <div v-if="!msg.locLink"><b>{{msg.from}}</b>: {{ msg.text }}</div>
+                       <a v-if="msg.locLink" v-bind:href="msg.locLink" target="_blank">{{msg.from}}'s location</a>
                   </li>
                 </ol>
 

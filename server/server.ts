@@ -2,7 +2,8 @@ import * as path from "path";
 import express from "express";
 import http from "http";
 import socketIO from "socket.io";
-import { Message } from "./utils/message";
+import { Message } from "./utils/messages/textMessage/message";
+import { LocationMessage } from "./utils/messages/locationMessage/locationMessage";
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +19,10 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('newMessage', message)
     }
 
+    function brodcastLocation(locationMessage: LocationMessage) {
+        socket.broadcast.emit('newLocationMessage', locationMessage)
+    }    
+
     function newUserJoining() {
         socket.emit('newMessage', new Message('Admin','Welcome to the chat app'));
         socket.broadcast.emit('newMessage',new Message('Admin','New user joined'));
@@ -26,7 +31,14 @@ io.on('connection', (socket) => {
     socket.on('createMessage', (msg, callback) => {
         console.log('New message recieved ', msg);
         brodcastMessage(new Message(msg.from, msg.text));
-        callback('This is from the server');
+        callback('You message was sent');
+    });
+
+    socket.on('sendLocationMessage', (msg, callback) => {
+        let location = new LocationMessage(msg.from,msg.location);
+        console.log('New location recieved ', );
+        brodcastLocation(location);
+        callback('You location was sent');
     });
 
     socket.on('disconnect', () => {
