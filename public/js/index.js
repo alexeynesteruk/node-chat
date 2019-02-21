@@ -1,3 +1,18 @@
+var app = new Vue({
+    el: '#app',
+    data: { 
+        message: '',
+        msgs:[]
+    },
+    methods: {
+        sendMessage: function (e) {
+            sendMessage('User', this.message);
+            e.preventDefault();
+            e.target.reset();
+        }
+    }
+})
+
 const socket = io();
 socket.on('connect', function () {
     console.log('Connected to server');
@@ -8,11 +23,14 @@ socket.on('disconnect', function () {
 });
 
 socket.on('newMessage', function (msg) {
-    console.log('New email', msg);
+    app.msgs.unshift(msg);
 });
 
-socket.emit('createMessage', {
-    from:'me1@example.com',
-    text:'Hey! How are you?',
-    createAt:332
-});
+function sendMessage(from, text) {
+    socket.emit('createMessage', {
+        from: from,
+        text: text
+    }, function (message) {
+        console.log(message);
+    });
+}
