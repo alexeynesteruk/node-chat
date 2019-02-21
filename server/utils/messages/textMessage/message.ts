@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export class Message {
     from: string;
     text: string;
@@ -6,6 +8,6 @@ export class Message {
     constructor(from: string, text: string) {
         this.from = from;
         this.text = text;
-        this.createAt = Date.now();
+        this.createAt = moment.now();
     }
 }

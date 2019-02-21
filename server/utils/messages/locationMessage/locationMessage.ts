@@ -1,4 +1,5 @@
 import { Location } from './location'
+import moment from 'moment'
 
 export class LocationMessage {
     from: string;
@@ -8,6 +9,6 @@ export class LocationMessage {
     constructor(from: string, location: Location) {
         this.from = from;
         this.location = location,
-        this.createAt = Date.now();
+        this.createAt = moment.now();
     }
 }

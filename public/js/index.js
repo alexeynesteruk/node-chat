@@ -1,3 +1,5 @@
+moment.locale('ru');
+
 var app = new Vue({
     el: '.chat',
     data: {
@@ -31,12 +33,14 @@ socket.on('disconnect', function () {
 });
 
 socket.on('newMessage', function (msg) {
+    msg.formattedTime = moment(msg.createdAt).format('H:mm');
     app.msgs.push(msg);
 });
 
 socket.on('newLocationMessage', function (msg) {
     const loc = msg.location;
     const locLink = `http://www.google.com/maps?q=${loc.latitude},${loc.longitude}`
+    msg.formattedTime = moment(msg.createdAt).format('H:mm');
     app.msgs.push({ locLink, from: msg.from });
 });
 
