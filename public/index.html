@@ -16,9 +16,8 @@
 
         <div class="chat__main">
             <ol class="chat__messages">
-                <li v-for="msg in msgs">
-                    <div v-if="!msg.locLink"><b>{{msg.from}}</b> {{msg.formattedTime}}: {{ msg.text }}</div>
-                    <div v-if="msg.locLink"><b>{{msg.from}}</b> {{msg.formattedTime}}: My <a v-if="msg.locLink" v-bind:href="msg.locLink" target="_blank"> location</a></div>
+                <li v-for="msg in msgs" class="message">
+                    <message :msg="msg"></message>
                 </li>
             </ol>
 
@@ -36,6 +35,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/lib/vue.js"></script>
+    <script  src="/js/components/message.js"></script>
     <script src="/js/lib/moment-with-locales.js"></script>
     <script src="/js/index.js"></script>
 </body>

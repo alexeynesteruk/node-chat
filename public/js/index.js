@@ -41,7 +41,7 @@ socket.on('newLocationMessage', function (msg) {
     const loc = msg.location;
     const locLink = `http://www.google.com/maps?q=${loc.latitude},${loc.longitude}`
     msg.formattedTime = moment(msg.createdAt).format('H:mm');
-    app.msgs.push({ locLink, from: msg.from });
+    app.msgs.push({ locLink, ...msg });
 });
 
 function sendMessage(from, text, callback) {
