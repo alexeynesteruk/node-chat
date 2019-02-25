@@ -2,19 +2,21 @@ import * as path from "path";
 import express from "express";
 import http from "http";
 import socketIO from "socket.io";
-import { Message } from "./utils/messages/textMessage/message";
-import { LocationMessage } from "./utils/messages/locationMessage/locationMessage";
-import {Validators} from"./utils/validators/validators";
+import { Message } from "./models/textMessage/message";
+import { LocationMessage } from "./models/locationMessage/locationMessage";
+import { Validators } from "./utils/validators/validators";
+import { UserStore } from "./models/userStore/UserStore";
+import { User } from "./models/user/User";
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+const _users = new UserStore();
 
 const _port = process.env.PORT || 3000;
 
 io.on('connection', (socket) => {
     console.log('New user connection');
-    newUserJoining();
 
     function brodcastMessage(message: Message) {
         socket.broadcast.emit('newMessage', message)
@@ -24,17 +26,24 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('newLocationMessage', locationMessage)
     }
 
-    function newUserJoining() {
+    function newUserJoining(name: string, room: string) {
+        const user = new User(socket.id, name, room)
+        _users.removeUser(socket.id);
+        _users.addUser(user);
         socket.emit('newMessage', new Message('Admin', 'Welcome to the chat app'));
-        socket.broadcast.emit('newMessage', new Message('Admin', 'New user joined'));
+        socket.broadcast.to(user.room).emit('newMessage', new Message('Admin', `${user.name} joined`));
+        socket.broadcast.to(user.room).emit('userJoined', user.name);
     }
 
     socket.on('join', (params, callback) => {
-        if(!Validators.isNonEmptyString(params.name) || !Validators.isNonEmptyString(params.room))
-        {
+        if (!Validators.isNonEmptyString(params.name) || !Validators.isNonEmptyString(params.room)) {
             callback('Name and room name are require');
         }
-        callback();
+
+        socket.join(params.room);
+        newUserJoining(params.name, params.room);
+
+        callback({ body: _users.getUserNameListByRoom(params.room) });
     })
 
     socket.on('createMessage', (msg, callback) => {
@@ -51,6 +60,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        const user = _users.removeUser(socket.id);
+        io.to(user.room).emit('userLeft', user.name);
+        socket.broadcast.to(user.room).emit('newMessage', new Message('Admin', `${user.name} has left`));
         console.log('Client disconnected');
     })
 });

@@ -4,6 +4,7 @@ var app = new Vue({
     el: '.chat',
     data: {
         message: '',
+        users:[],
         sendingLocation: false,
         msgs: []
     },
@@ -25,12 +26,13 @@ var app = new Vue({
 
 const socket = io();
 socket.on('connect', function () {
-    const params = deparam(window.location.search); 
-    socket.emit('join',params, function(error){
-        if(error){
-            alert(error);
+    const params = deparam(window.location.search);
+    socket.emit('join', params, function (res) {
+        if (res.error) {
+            alert(res.error);
             window.location.href = '/';
-        }else{
+        } else {
+            app.users = res.body;
             console.log('No error');
         }
     });
@@ -38,6 +40,16 @@ socket.on('connect', function () {
 
 socket.on('disconnect', function () {
     console.log('Disconnected to server');
+});
+
+socket.on('userJoined', function (userName) {
+    console.log(userName);
+    app.users.push(userName);
+});
+
+socket.on('userLeft', function (userName) {
+    app.users.splice(app.users.findIndex(user => user === userName), 1);
+    console.log(userName);
 });
 
 socket.on('newMessage', function (msg) {
