@@ -18,12 +18,14 @@ const _port = process.env.PORT || 3000;
 io.on('connection', (socket) => {
     console.log('New user connection');
 
-    function brodcastMessage(message: Message) {
-        socket.broadcast.emit('newMessage', message)
+    function brodcastMessageToRoom(room: string, message: Message) {
+        io.to(room).emit('newMessage', message);
+        console.info(`Message: ${JSON.stringify(message, undefined, '\t')} was sent to room: ${room}`);
     }
 
-    function brodcastLocation(locationMessage: LocationMessage) {
-        socket.broadcast.emit('newLocationMessage', locationMessage)
+    function brodcastLocation(room: string, locationMessage: LocationMessage) {
+        io.to(room).emit('newLocationMessage', locationMessage)
+        console.info(`Location: ${JSON.stringify(locationMessage, undefined, '\t')} was sent to room: ${room}`);
     }
 
     function newUserJoining(name: string, room: string) {
@@ -47,16 +49,22 @@ io.on('connection', (socket) => {
     })
 
     socket.on('createMessage', (msg, callback) => {
-        console.log('New message recieved ', msg);
-        brodcastMessage(new Message(msg.from, msg.text));
-        callback('You message was sent');
+        const user = _users.getUser(socket.id);
+
+        if (user && Validators.isNonEmptyString(msg.text)) {
+            brodcastMessageToRoom(user.room, new Message(msg.from, msg.text));
+            callback({});
+        }
+        else {
+            callback({ error: `Can't send your message` });
+        }
     });
 
     socket.on('sendLocationMessage', (msg, callback) => {
-        let location = new LocationMessage(msg.from, msg.location);
-        console.log('New location recieved ');
-        brodcastLocation(location);
-        callback('You location was sent');
+        const location = new LocationMessage(msg.from, msg.location);
+        const user = _users.getUser(socket.id);
+        brodcastLocation(user.room, location);
+        callback({ body: 'You location was sent' });
     });
 
     socket.on('disconnect', () => {

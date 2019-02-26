@@ -4,13 +4,14 @@ var app = new Vue({
     el: '.chat',
     data: {
         message: '',
-        users:[],
+        currentUserName:'',
+        users: [],
         sendingLocation: false,
         msgs: []
     },
     methods: {
         sendMessage: function (e) {
-            sendMessage('User', this.message, function () {
+            sendMessage(this.currentUserName, this.message, function () {
                 e.target.reset();
             });
             e.preventDefault();
@@ -32,6 +33,7 @@ socket.on('connect', function () {
             alert(res.error);
             window.location.href = '/';
         } else {
+            app.currentUserName = params.name;
             app.users = res.body;
             console.log('No error');
         }
@@ -70,9 +72,11 @@ function sendMessage(from, text, callback) {
     socket.emit('createMessage', {
         from: from,
         text: text
-    }, function (message) {
-        console.log(message);
-        callback();
+    }, function (res) {
+        if (res.error)
+            console.error(res.error);
+        else
+            callback();
     });
 }
 
@@ -101,7 +105,7 @@ function scrollToBottom() {
 function sendLocation(callback) {
     navigator.geolocation.getCurrentPosition(function (position) {
         socket.emit('sendLocationMessage', {
-            from: 'USer1',
+            from: app.currentUserName,
             location: {
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude
